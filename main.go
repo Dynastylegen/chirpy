@@ -11,15 +11,15 @@ func main() {
 		fileserverHits: atomic.Int32{},
 	}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", handlerReadiness)
+	mux.HandleFunc("GET /healthz", handlerReadiness)
 	handler := http.StripPrefix("/app", http.FileServer(http.Dir(".")))
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(handler))
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: mux,
 	}
-	mux.HandleFunc("/metrics", apiCfg.handlerMetrics)
-	mux.HandleFunc("/reset", apiCfg.handlerReset)
+	mux.HandleFunc("GET /metrics", apiCfg.handlerMetrics)
+	mux.HandleFunc("POST /reset", apiCfg.handlerReset)
 	server.ListenAndServe()
 }
 func handlerReadiness(w http.ResponseWriter, r *http.Request) {
