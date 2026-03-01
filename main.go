@@ -12,6 +12,7 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+	mux.HandleFunc("/api/validate_chirp", handlerChirpsValidate)
 	handler := http.StripPrefix("/app", http.FileServer(http.Dir(".")))
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(handler))
 	server := &http.Server{
@@ -25,7 +26,7 @@ func main() {
 func handlerReadiness(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(200)
-	w.Write([]byte("OK"))
+	w.Write([]byte("WIZARD BEAR IS HERE"))
 }
 
 type apiConfig struct {
