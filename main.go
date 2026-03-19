@@ -31,7 +31,7 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
-	mux.HandleFunc("/api/validate_chirp", handlerChirpsValidate)
+	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
 	handler := http.StripPrefix("/app", http.FileServer(http.Dir(".")))
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(handler))
 	server := &http.Server{
