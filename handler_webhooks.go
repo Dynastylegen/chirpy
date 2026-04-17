@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Dynastylegen/chirpy/internal/auth"
 	"github.com/google/uuid"
 )
 
@@ -15,9 +16,19 @@ type WebHook struct {
 }
 
 func (cfg *apiConfig) handlerWebhook(w http.ResponseWriter, r *http.Request) {
+	apiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		http.Error(w, "apiKey not Found", http.StatusUnauthorized)
+		return
+	}
+	if apiKey != cfg.polkaKey {
+		http.Error(w, "apiKey not Found", http.StatusUnauthorized)
+		return
+	}
+
 	var params WebHook
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 	if err != nil {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
