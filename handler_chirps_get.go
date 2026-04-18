@@ -3,12 +3,26 @@ package main
 import (
 	"net/http"
 
+	"github.com/Dynastylegen/chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerChirpsRetrieve(w http.ResponseWriter, r *http.Request) {
+	authorIDString := r.URL.Query().Get("author_id")
 	chirps := []Chirp{}
-	dbChirps, err := cfg.db.AllChirps(r.Context())
+	var dbChirps []database.Chirp
+	var err error
+
+	if authorIDString != "" {
+		authorID, parseErr := uuid.Parse(authorIDString)
+		if parseErr != nil {
+			respondWithError(w, http.StatusBadRequest, "Invalid author ID", parseErr)
+			return
+		}
+		dbChirps, err = cfg.db.AllChirpsByAuthor(r.Context(), uuid.NullUUID{UUID: authorID, Valid: true})
+	} else {
+		dbChirps, err = cfg.db.AllChirps(r.Context())
+	}
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve chirps", err)
 		return
